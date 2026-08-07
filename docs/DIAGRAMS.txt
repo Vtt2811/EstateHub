@@ -1,0 +1,254 @@
+================================================================================
+                     ESTATEHUB PROJECT TECHNICAL DOCUMENTATION
+================================================================================
+
+This document provides a complete technical reference for the EstateHub real estate 
+platform based directly on the actual codebase (client, api, socket, schema.prisma).
+
+================================================================================
+1. SYSTEM ARCHITECTURE
+================================================================================
+
+[ Client Layer ] (Port 5173 - React 18 + Vite)
+  |-- Web Browser UI (Tailwind CSS, Plus Jakarta Sans & Playfair Display fonts)
+  |-- State Management (AuthContext for JWT state, Zustand for notification count)
+  |-- Media Upload (Cloudinary UploadWidget SDK)
+  |-- Map Rendering (React Leaflet + OpenStreetMap)
+  |
+  +---> [ External Cloud Service ]
+  |       |-- Cloudinary CDN (Direct unsigned image uploads for property photos)
+  |
+  +---> [ REST API Backend ] (Port 8800 - Node.js + Express)
+  |       |-- Authentication (/api/auth) -> Bcrypt.js password hashing & JWT signing
+  |       |-- User Management (/api/users) -> Profiles, Saved Posts, Unread Badges
+  |       |-- Property Listings (/api/posts) -> Filtered queries, CRUD operations
+  |       |-- Messaging API (/api/chats, /api/messages) -> Chat persistence
+  |       |-- Authorization Middleware (verifyToken -> checks HttpOnly JWT cookie)
+  |       |
+  |       +---> [ Database Layer ] (Port 27018 / 27017 - MongoDB Replica Set rs0)
+  |               |-- Prisma ORM Client (v5.19.1)
+  |               |-- MongoDB Document Store (User, Post, PostDetail, SavedPost, Chat, Message)
+  |
+  +---> [ Real-Time Socket Server ] (Port 4000 - Node.js + Socket.io)
+          |-- Connection Manager (onlineUsers array [{ userId, socketId }])
+          |-- Event Handlers (newUser, sendMessage, disconnect)
+          |-- Direct Socket Message Router (io.to(targetSocketId).emit("getMessage"))
+
+
+================================================================================
+2. DATABASE SCHEMA (ENTITY-RELATIONSHIP MODEL)
+================================================================================
+
+MODEL: User
+--------------------------------------------------------------------------------
+- id         : String (ObjectId, Primary Key)
+- email      : String (Unique)
+- username   : String (Unique)
+- password   : String (Hashed with bcrypt)
+- avatar     : String (Optional CDN URL)
+- createdAt  : DateTime (Default: now())
+- chatIDs    : Array of ObjectIds (Foreign Keys to Chat)
+- Relations  : Has many Posts, Has many SavedPosts, Belongs to many Chats
+
+MODEL: Post (Property)
+--------------------------------------------------------------------------------
+- id         : String (ObjectId, Primary Key)
+- title      : String
+- price      : Int
+- images     : Array of Strings (Cloudinary CDN URLs)
+- address    : String
+- city       : String
+- bedroom    : Int
+- bathroom   : Int
+- latitude   : String
+- longitude  : String
+- type       : Enum ("buy", "rent")
+- property   : Enum ("apartment", "house", "condo", "land")
+- createdAt  : DateTime (Default: now())
+- userId     : String (ObjectId, Foreign Key to User)
+- Relations  : Belongs to User, Has 1 PostDetail, Has many SavedPosts
+
+MODEL: PostDetail (Property Extension)
+--------------------------------------------------------------------------------
+- id         : String (ObjectId, Primary Key)
+- desc       : String (HTML rich text formatted description)
+- utilities  : String (Optional: "owner", "tenant", "shared")
+- pet        : String (Optional: "allowed", "not-allowed")
+- income     : String (Optional text policy)
+- size       : Int (Optional square footage)
+- school     : Int (Optional distance in meters)
+- bus        : Int (Optional distance in meters)
+- restaurant : Int (Optional distance in meters)
+- postId     : String (ObjectId, Foreign Key to Post, Unique)
+- Relations  : Belongs to 1 Post
+
+MODEL: SavedPost (User-Post Favorite Junction)
+--------------------------------------------------------------------------------
+- id        : String (ObjectId, Primary Key)
+- userId    : String (ObjectId, Foreign Key to User)
+- postId    : String (ObjectId, Foreign Key to Post)
+- createdAt : DateTime (Default: now())
+- Index     : Compound Unique Index on [userId, postId]
+
+MODEL: Chat (Conversation Thread)
+--------------------------------------------------------------------------------
+- id          : String (ObjectId, Primary Key)
+- userIDs     : Array of ObjectIds (Foreign Keys to User)
+- seenBy      : Array of ObjectIds (Users who read the latest message)
+- lastMessage : String (Optional snippet of last message)
+- createdAt   : DateTime (Default: now())
+- Relations   : Belongs to many Users, Has many Messages
+
+MODEL: Message (Chat Entry)
+--------------------------------------------------------------------------------
+- id        : String (ObjectId, Primary Key)
+- text      : String
+- userId    : String (ID of message sender)
+- chatId    : String (ObjectId, Foreign Key to Chat)
+- createdAt : DateTime (Default: now())
+- Relations : Belongs to 1 Chat
+
+
+================================================================================
+3. API ROUTE MAP
+================================================================================
+
+[ AUTHENTICATION ROUTES ] - Controller: api/controllers/auth.controllers.js
+- POST   /api/auth/register    | Public    | Hashes password via bcrypt, creates User
+- POST   /api/auth/login       | Public    | Verifies credentials, signs JWT, sets HttpOnly cookie
+- POST   /api/auth/logout      | Public    | Clears token cookie
+
+[ USER ROUTES ] - Controller: api/controllers/user.controller.js
+- GET    /api/users/           | Public    | Fetches list of all users
+- PUT    /api/users/:id        | Protected | Updates username, email, password, or avatar
+- DELETE /api/users/:id        | Protected | Deletes user account
+- POST   /api/users/save       | Protected | Toggles saving/unsaving a property
+- GET    /api/users/profilePosts| Protected| Returns user's created listings & saved listings
+- GET    /api/users/notification| Protected| Returns unread chat count
+
+[ PROPERTY ROUTES ] - Controller: api/controllers/post.controller.js
+- GET    /api/posts/           | Public    | Returns filtered listings (city, type, price, beds)
+- GET    /api/posts/:id        | Public    | Returns property detail & owner info
+- POST   /api/posts/           | Protected | Creates new Post and nested PostDetail
+- PUT    /api/posts/:id        | Protected | Updates Post and PostDetail attributes
+- DELETE /api/posts/:id        | Protected | Deletes user's own property post
+
+[ CHAT ROUTES ] - Controller: api/controllers/chat.controller.js
+- GET    /api/chats/           | Protected | Returns user's conversation threads
+- GET    /api/chats/:id        | Protected | Returns single chat thread messages
+- POST   /api/chats/           | Protected | Creates new chat thread between users
+- PUT    /api/chats/read/:id   | Protected | Appends user to seenBy array
+
+[ MESSAGE ROUTES ] - Controller: api/controllers/message.controller.js
+- POST   /api/messages/:chatId | Protected | Appends Message to chat & updates lastMessage
+
+
+================================================================================
+4. AUTHENTICATION & SECURITY SEQUENCE
+================================================================================
+
+REGISTRATION SEQUENCE:
+1. User enters username, email, password on /register.
+2. Frontend calls POST /api/auth/register.
+3. API runs bcrypt.hash(password, 10).
+4. API executes prisma.user.create() on MongoDB replica set.
+5. API returns HTTP 201 Created. Frontend redirects user to /login.
+
+LOGIN & COOKIE SEQUENCE:
+1. User enters username, password on /login.
+2. Frontend calls POST /api/auth/login.
+3. API looks up user by username via prisma.user.findUnique().
+4. API checks password via bcrypt.compare(password, user.password).
+5. API generates JWT signed with JWT_SECRET_KEY (expires in 7 days).
+6. API attaches Set-Cookie: token=<JWT>; HttpOnly; Max-Age=7days.
+7. API returns JSON userInfo. Frontend updates React AuthContext.
+
+PROTECTED ROUTE VERIFICATION:
+1. Client requests a protected endpoint (e.g. GET /api/users/profilePosts).
+2. Browser automatically transmits HttpOnly cookie token.
+3. Middleware verifyToken reads req.cookies.token and verifies via jwt.verify().
+4. If valid, attaches req.userId and passes execution to controller.
+
+
+================================================================================
+5. PROPERTY LISTING CREATION SEQUENCE
+================================================================================
+
+1. User opens /add (NewPostPage component).
+2. User selects property photos using UploadWidget.
+3. Cloudinary SDK uploads files directly to Cloudinary CDN via unsigned preset.
+4. Cloudinary returns array of CDN URLs to UploadWidget, updating React state.
+5. User submits form payload to POST /api/posts.
+6. verifyToken middleware verifies JWT cookie and sets req.userId.
+7. Post controller calls prisma.post.create({ data: { ...postData, userId, postDetail: { create: postDetail } } }).
+8. Database persists Post and PostDetail records atomically.
+9. API returns HTTP 200 with new post ID.
+10. User is redirected to property detail page or dashboard.
+
+
+================================================================================
+6. REAL-TIME CHAT & MESSAGING SEQUENCE
+================================================================================
+
+ONLINE USER REGISTRATION:
+1. Client connects to Socket.io server on ws://localhost:4000.
+2. Client emits socket.emit("newUser", userId).
+3. Socket server pushes { userId, socketId } into onlineUser in-memory array.
+
+MESSAGE SENDING (REST + WEBSOCKET DUAL-TRACK):
+1. User types text and submits message form in Chat component.
+2. HTTP Track: Client sends POST /api/messages/:chatId { text }.
+   - Express API creates Message record in MongoDB via Prisma.
+   - Express API updates Chat.lastMessage and resets Chat.seenBy to sender ID.
+   - Returns 200 OK + Message JSON.
+3. WebSocket Track: Client emits socket.emit("sendMessage", { receiverId, data }).
+   - Socket server looks up receiverId in onlineUser array to find target socketId.
+   - Socket server emits io.to(targetSocketId).emit("getMessage", data).
+   - Receiver client receives event, appends message text to Chat state, and increments unread badge.
+
+
+================================================================================
+7. FRONTEND COMPONENT & ROUTER TREE
+================================================================================
+
+React Router Configuration (App.jsx):
+
+App.jsx
+  |-- Public Routes (<Layout /> -> Navbar + Outlet + Footer)
+  |     |-- /                  : HomePage.jsx (SearchBar, List, Footer)
+  |     |-- /list              : ListPage.jsx (Filter, Card grid, Map, Pin)
+  |     |-- /:id               : SinglePage.jsx (Slider, Map, Pin)
+  |     |-- /login             : Login.jsx (Form, Notification)
+  |     |-- /register          : Register.jsx (Form)
+  |
+  |-- Protected Routes (<RequireAuth /> -> Navbar + Outlet)
+        |-- /profile           : ProfilePage.jsx (User Card, List, Chat)
+        |-- /profile/update    : ProfileUpdatePage.jsx (Form, UploadWidget)
+        |-- /add               : NewPostPage.jsx (Form, ReactQuill, UploadWidget)
+        |-- /posts/update/:id  : UpdatePostPage.jsx (Form, ReactQuill, UploadWidget)
+
+
+================================================================================
+8. USER JOURNEY FLOWCHART
+================================================================================
+
+[ Guest Visitor ]
+  |
+  +---> Search bar / Filter ---> ListPage (/list) ---> SinglePage (/:id)
+  |                                                         |
+  +---> Explore Featured Listings --------------------------+
+  |                                                         |
+  +---> Click Sign In / Register                            |
+          |                                                 |
+          v                                                 v
+   [ Login / Register ] <----------------------- Try to Save / Send Message
+          |
+          v
+   [ Authenticated User ]
+          |
+          +---> Profile Dashboard (/profile)
+                  |-- View My Listings & Saved Properties
+                  |-- Create New Listing (/add) -> Cloudinary Upload -> Published
+                  |-- Edit Property Listing (/posts/update/:id)
+                  |-- Update Account Profile (/profile/update)
+                  |-- Respond to Live Buyer Messages (Real-Time Chat)

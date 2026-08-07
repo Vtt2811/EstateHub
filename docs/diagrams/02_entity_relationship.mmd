@@ -1,0 +1,70 @@
+erDiagram
+    User ||--o{ Post : "creates / owns"
+    User ||--o{ SavedPost : "saves"
+    User }o--o{ Chat : "belongs to (chatIDs / userIDs)"
+    Post ||--|| PostDetail : "has details (postId unique)"
+    Post ||--o{ SavedPost : "is saved in"
+    Chat ||--o{ Message : "contains"
+
+    User {
+        ObjectId id PK
+        String email UK
+        String username UK
+        String password
+        String avatar
+        DateTime createdAt
+        ObjectIdArray chatIDs FK
+    }
+
+    Post {
+        ObjectId id PK
+        String title
+        Int price
+        StringArray images
+        String address
+        String city
+        Int bedroom
+        Int bathroom
+        String latitude
+        String longitude
+        Type type "enum: buy, rent"
+        Property property "enum: apartment, house, condo, land"
+        DateTime createdAt
+        ObjectId userId FK
+    }
+
+    PostDetail {
+        ObjectId id PK
+        String desc
+        String utilities
+        String pet
+        String income
+        Int size
+        Int school
+        Int bus
+        Int restaurant
+        ObjectId postId FK,UK
+    }
+
+    SavedPost {
+        ObjectId id PK
+        ObjectId userId FK
+        ObjectId postId FK
+        DateTime createdAt
+    }
+
+    Chat {
+        ObjectId id PK
+        ObjectIdArray userIDs FK
+        ObjectIdArray seenBy
+        String lastMessage
+        DateTime createdAt
+    }
+
+    Message {
+        ObjectId id PK
+        String text
+        String userId
+        ObjectId chatId FK
+        DateTime createdAt
+    }

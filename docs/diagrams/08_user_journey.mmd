@@ -1,0 +1,32 @@
+flowchart TD
+    Start([Visitor lands on EstateHub Homepage]) --> ActionChoice{What does visitor want to do?}
+
+    ActionChoice -->|Search Location / Type| Search[Use SearchBar / Filter]
+    ActionChoice -->|Explore Featured| Browse[Browse Featured Rentals & Sale Cards]
+    ActionChoice -->|Sign In / Register| Auth[Navigate to /login or /register]
+
+    Search --> ListPage[View ListPage /list with Grid & Map]
+    Browse --> SinglePage[View Property Detail /:id]
+    ListPage --> SinglePage
+
+    SinglePage --> DetailChoice{Interested in Property?}
+    DetailChoice -->|View High-Res Photos| Gallery[Open Image Slider Lightbox]
+    DetailChoice -->|Save Property| CheckAuth1{Is User Logged In?}
+    DetailChoice -->|Contact Agent / Send Msg| CheckAuth2{Is User Logged In?}
+
+    CheckAuth1 -->|No| Auth
+    CheckAuth1 -->|Yes| Save[Toggle Saved Status in DB via /api/users/save]
+    
+    CheckAuth2 -->|No| Auth
+    CheckAuth2 -->|Yes| Chat[Open Socket.io Chat & Send Message]
+
+    Auth --> Dashboard[Logged In User Dashboard /profile]
+    
+    Dashboard --> UserTask{Dashboard Task}
+    UserTask -->|Create Listing| AddPage[Fill NewPostPage /add + Upload Images]
+    UserTask -->|Edit Listing| EditPage[Edit Post /posts/update/:id]
+    UserTask -->|Manage Profile| UpdateProf[Update Profile /profile/update]
+    UserTask -->|Chat with Buyers/Renters| ActiveChat[Respond in Real-time Chat Drawer]
+
+    AddPage --> Published[Property Published & Displayed on List/Home]
+    EditPage --> Published

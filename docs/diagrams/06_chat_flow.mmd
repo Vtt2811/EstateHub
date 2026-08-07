@@ -1,0 +1,44 @@
+sequenceDiagram
+    autonumber
+    actor Sender as Sender Client (User A)
+    participant SocketServer as Socket.io Server (:4000)
+    participant API as REST API Server (:8800)
+    participant DB as MongoDB (Prisma)
+    actor Receiver as Receiver Client (User B)
+
+    %% Socket Connection Initialization
+    rect rgb(240, 245, 255)
+        note right of Sender: Connection & Online Registration
+        Sender->>SocketServer: connect()
+        Sender->>SocketServer: emit("newUser", userId_A)
+        SocketServer->>SocketServer: onlineUser.push({ userId: A, socketId: 101 })
+
+        Receiver->>SocketServer: connect()
+        Receiver->>SocketServer: emit("newUser", userId_B)
+        SocketServer->>SocketServer: onlineUser.push({ userId: B, socketId: 202 })
+    end
+
+    %% Message Sending & Dual-Track Flow
+    rect rgb(255, 245, 240)
+        note right of Sender: Message Submission & Real-time Broadcast
+        Sender->>API: POST /api/messages/:chatId { text: "Hello!" } (with JWT Cookie)
+        API->>DB: prisma.message.create({ data: { text, chatId, userId: A } })
+        API->>DB: prisma.chat.update({ where: { id: chatId }, data: { lastMessage: "Hello!", seenBy: [A] } })
+        DB-->>API: Message record created
+        API-->>Sender: 200 OK + Message JSON
+
+        Sender->>SocketServer: emit("sendMessage", { receiverId: B, data: messageObj })
+        SocketServer->>SocketServer: getUser(receiverId_B) -> socketId: 202
+        SocketServer->>Receiver: io.to(202).emit("getMessage", messageObj)
+        Receiver->>Receiver: Append messageObj to Chat state
+        Receiver->>Receiver: If chat not active, increment unread badge (Zustand)
+    end
+
+    %% Message Reading
+    rect rgb(245, 255, 245)
+        note right of Receiver: Marking Chat as Read
+        Receiver->>API: PUT /api/chats/read/:chatId
+        API->>DB: prisma.chat.update({ data: { seenBy: { push: B } } })
+        DB-->>API: Chat updated
+        API-->>Receiver: 200 OK { message: "Chat read" }
+    end

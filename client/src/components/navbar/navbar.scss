@@ -1,0 +1,16 @@
+/* Navbar link styles */
+.nav-link {
+  @apply px-3.5 py-2 font-body font-medium text-body-sm text-navy-500 rounded-btn
+         transition-all duration-250 ease-out
+         hover:text-navy-900 hover:bg-surface-100;
+}
+
+.nav-link-active {
+  @apply text-accent-600 bg-accent-50 hover:text-accent-700 hover:bg-accent-50;
+}
+
+.mobile-nav-link {
+  @apply px-4 py-3 font-body font-medium text-body text-navy-700 rounded-btn
+         transition-all duration-250 ease-out
+         hover:bg-surface-100 hover:text-navy-900;
+}

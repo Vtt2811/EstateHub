@@ -1,0 +1,71 @@
+graph TD
+    App["App.jsx (createBrowserRouter)"]
+
+    subgraph PublicLayout ["Public Layout (<Layout />)"]
+        Navbar1["Navbar.jsx"]
+        Outlet1["<Outlet />"]
+        Footer1["Footer.jsx"]
+
+        P_Home["HomePage.jsx"]
+        P_List["ListPage.jsx"]
+        P_Single["SinglePage.jsx"]
+        P_Login["Login.jsx"]
+        P_Reg["Register.jsx"]
+    end
+
+    subgraph ProtectedLayout ["Protected Layout (<RequireAuth />)"]
+        Navbar2["Navbar.jsx"]
+        Outlet2["<Outlet />"]
+
+        P_Profile["ProfilePage.jsx"]
+        P_ProfUpdate["ProfileUpdatePage.jsx"]
+        P_NewPost["NewPostPage.jsx"]
+        P_UpdatePost["UpdatePostPage.jsx"]
+    end
+
+    subgraph SharedComponents ["Shared UI Components"]
+        C_Card["Card.jsx"]
+        C_Filter["Filter.jsx"]
+        C_SearchBar["SearchBar.jsx"]
+        C_Map["Map.jsx"]
+        C_Pin["Pin.jsx"]
+        C_Slider["Slider.jsx"]
+        C_Chat["Chat.jsx"]
+        C_Upload["UploadWidget.jsx"]
+        C_List["List.jsx"]
+        C_Notif["Notification.jsx"]
+    end
+
+    %% Router Mapping
+    App --> PublicLayout
+    App --> ProtectedLayout
+
+    PublicLayout --> Navbar1
+    PublicLayout --> Outlet1
+    PublicLayout --> Footer1
+
+    ProtectedLayout --> Navbar2
+    ProtectedLayout --> Outlet2
+
+    %% Page to Component Dependencies
+    P_Home --> C_SearchBar
+    P_Home --> C_List
+    P_Home --> C_Footer1
+
+    P_List --> C_Filter
+    P_List --> C_Card
+    P_List --> C_Map
+    C_Map --> C_Pin
+
+    P_Single --> C_Slider
+    P_Single --> C_Map
+
+    P_Login --> C_Notif
+
+    P_Profile --> C_List
+    P_Profile --> C_Chat
+    C_List --> C_Card
+
+    P_ProfUpdate --> C_Upload
+    P_NewPost --> C_Upload
+    P_UpdatePost --> C_Upload

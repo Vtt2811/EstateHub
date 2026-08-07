@@ -1,0 +1,47 @@
+graph TB
+    subgraph ClientLayer ["Client Layer (React / Vite - Port 5173)"]
+        ReactApp["React 18 Application"]
+        AuthCtx["AuthContext (JWT State)"]
+        SocketCtx["SocketContext (WS State)"]
+        ZustandStore["Notification Store (Zustand)"]
+        CloudinaryWidget["UploadWidget (Cloudinary SDK)"]
+    end
+
+    subgraph ExternalCloud ["External Media Services"]
+        Cloudinary["Cloudinary CDN"]
+    end
+
+    subgraph BackendLayer ["Backend Services"]
+        subgraph RESTAPI ["Express REST API (Port 8800)"]
+            AuthRoutes["/api/auth (Register, Login, Logout)"]
+            UserRoutes["/api/users (Profile, Save, Notifications)"]
+            PostRoutes["/api/posts (CRUD Properties)"]
+            ChatRoutes["/api/chats (Fetch & Read Threads)"]
+            MessageRoutes["/api/messages (Send Messages)"]
+            VerifyMW["verifyToken Middleware (JWT Cookie)"]
+        end
+
+        subgraph WSServer ["Socket.io Server (Port 4000)"]
+            OnlineUsers["onlineUsers Array [{userId, socketId}]"]
+            SocketEvents["WS Event Handlers (newUser, sendMessage)"]
+        end
+    end
+
+    subgraph DatabaseLayer ["Database Layer"]
+        PrismaORM["Prisma ORM Client"]
+        MongoDB[("MongoDB Replica Set rs0 (Port 27018 / 27017)")]
+    end
+
+    %% Client Interactions
+    ReactApp -->|REST HTTP Requests / Axios| RESTAPI
+    ReactApp -->|WebSocket Events| WSServer
+    CloudinaryWidget -->|Direct Image Upload| Cloudinary
+    Cloudinary -->|Returns Image URLs| CloudinaryWidget
+
+    %% REST API Interactions
+    RESTAPI --> VerifyMW
+    RESTAPI --> PrismaORM
+    PrismaORM -->|CRUD Queries| MongoDB
+
+    %% Socket Operations
+    WSServer -->|Emits getMessage| ReactApp

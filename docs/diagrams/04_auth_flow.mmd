@@ -1,0 +1,45 @@
+sequenceDiagram
+    autonumber
+    actor User as User (Browser)
+    participant Client as React Client (Login.jsx)
+    participant API as Express API (/api/auth)
+    participant DB as MongoDB (Prisma)
+    participant Context as AuthContext
+
+    %% Registration Sub-flow
+    rect rgb(240, 245, 255)
+        note right of User: User Registration Flow
+        User->>Client: Submit Form (username, email, password)
+        Client->>API: POST /api/auth/register { username, email, password }
+        API->>API: bcrypt.hash(password, 10)
+        API->>DB: prisma.user.create({ data: { username, email, password: hashedPassword } })
+        DB-->>API: User record created
+        API-->>Client: 201 Created { message: "User created successfully" }
+        Client-->>User: Redirect to /login
+    end
+
+    %% Login Sub-flow
+    rect rgb(255, 245, 240)
+        note right of User: User Login & Cookie Token Flow
+        User->>Client: Submit Credentials (username, password)
+        Client->>API: POST /api/auth/login { username, password }
+        API->>DB: prisma.user.findUnique({ where: { username } })
+        DB-->>API: User record (including hashedPassword)
+        API->>API: bcrypt.compare(password, user.password)
+        API->>API: jwt.sign({ id: user.id }, JWT_SECRET_KEY, { expiresIn: 7 days })
+        API-->>Client: 200 OK + Set-Cookie: token=<JWT>; HttpOnly + JSON userInfo
+        Client->>Context: updateUser(userInfo)
+        Client-->>User: Redirect to Homepage / Dashboard
+    end
+
+    %% Protected Route Access
+    rect rgb(245, 255, 245)
+        note right of User: Protected Route Request
+        User->>Client: Navigate to /profile or /add
+        Client->>API: GET /api/users/profilePosts (Cookie: token=<JWT>)
+        API->>API: verifyToken middleware -> jwt.verify(token, JWT_SECRET_KEY)
+        API->>DB: Fetch protected data for req.userId
+        DB-->>API: User listings & saved posts
+        API-->>Client: 200 OK + Data
+        Client-->>User: Render Dashboard UI
+    end

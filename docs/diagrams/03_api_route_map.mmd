@@ -1,0 +1,36 @@
+graph TD
+    subgraph ExpressApp ["Express API Application (/api)"]
+        subgraph AuthGroup ["Authentication Routes (/api/auth)"]
+            A1["POST /register -> register() [Public]"]
+            A2["POST /login -> login() [Public]"]
+            A3["POST /logout -> logout() [Public]"]
+        end
+
+        subgraph UserGroup ["User Routes (/api/users)"]
+            U1["GET / -> getUsers() [Public]"]
+            U2["PUT /:id -> updateUser() [Protected]"]
+            U3["DELETE /:id -> deleteUser() [Protected]"]
+            U4["POST /save -> savePost() [Protected]"]
+            U5["GET /profilePosts -> profilePosts() [Protected]"]
+            U6["GET /notification -> getNotificationNumber() [Protected]"]
+        end
+
+        subgraph PostGroup ["Property Routes (/api/posts)"]
+            P1["GET / -> getPosts() [Public]"]
+            P2["GET /:id -> getPost() [Public]"]
+            P3["POST / -> addPost() [Protected]"]
+            P4["PUT /:id -> updatePost() [Protected]"]
+            P5["DELETE /:id -> deletePost() [Protected]"]
+        end
+
+        subgraph ChatGroup ["Chat Routes (/api/chats)"]
+            C1["GET / -> getChats() [Protected]"]
+            C2["GET /:id -> getChat() [Protected]"]
+            C3["POST / -> addChat() [Protected]"]
+            C4["PUT /read/:id -> readChat() [Protected]"]
+        end
+
+        subgraph MessageGroup ["Message Routes (/api/messages)"]
+            M1["POST /:chatId -> addMessage() [Protected]"]
+        end
+    end

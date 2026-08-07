@@ -1,0 +1,35 @@
+sequenceDiagram
+    autonumber
+    actor User as Agent / User
+    participant Page as NewPostPage.jsx
+    participant Widget as UploadWidget (Cloudinary)
+    participant CDN as Cloudinary CDN
+    participant API as Express API (/api/posts)
+    participant MW as verifyToken Middleware
+    participant DB as MongoDB (Prisma)
+    participant List as ListPage / HomePage
+
+    %% Image Upload
+    User->>Page: Fill property fields (title, price, city, beds...)
+    User->>Widget: Click "Upload Property Images"
+    Widget->>CDN: Direct upload images via unsigned preset "estatehub"
+    CDN-->>Widget: Return Cloudinary CDN Image URLs
+    Widget->>Page: Update React State setImages([url1, url2...])
+
+    %% Post Submission
+    User->>Page: Click "Publish Property"
+    Page->>API: POST /api/posts { postData: {...}, postDetail: {...} } (with Cookie)
+    API->>MW: verifyToken(req, res, next)
+    MW-->>API: Attach req.userId from decoded JWT
+    API->>DB: prisma.post.create({ data: { ...postData, userId, postDetail: { create: postDetail } } })
+    DB-->>API: Return created Post object with ID
+    API-->>Page: 200 OK { id: "post_123", ... }
+    Page-->>User: Redirect to /post_123 or /profile
+
+    %% Listing Display
+    User->>List: Browse /list or Homepage
+    List->>API: GET /api/posts?type=buy&city=...
+    API->>DB: prisma.post.findMany({ where: query })
+    DB-->>API: Return posts array
+    API-->>List: 200 OK + posts JSON
+    List-->>User: Render Property Cards & Map Pins
