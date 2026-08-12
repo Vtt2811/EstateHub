@@ -48,9 +48,9 @@ function SinglePage() {
                   <span>{post.address}</span>
                 </div>
                 <div className="inline-block px-4 py-2 bg-accent-50 border border-accent-200 rounded-btn">
-                  <span className="font-heading text-2xl font-bold text-accent-600">
-                    ${post.price.toLocaleString()}
-                  </span>
+                  <div className="bg-accent-50 text-accent-700 px-4 py-1.5 rounded-pill font-heading font-bold text-lg">
+                    ₹{post.price.toLocaleString('en-IN')}
+                  </div>
                   {post.type === "rent" && (
                     <span className="text-navy-400 font-body text-body-sm">/month</span>
                   )}
@@ -66,7 +66,16 @@ function SinglePage() {
                 />
                 <div>
                   <p className="font-body font-semibold text-navy-800">{post.user.username}</p>
-                  <p className="text-navy-400 font-body text-caption">Property Owner</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-navy-400 font-body text-caption">
+                      {post.user.role === "AGENT" && post.user.agentStatus === "APPROVED"
+                        ? "Verified Agent"
+                        : "Property Owner"}
+                    </p>
+                    {post.user.role === "AGENT" && post.user.agentStatus === "APPROVED" && (
+                      <span className="text-accent-500 text-caption">🏅</span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

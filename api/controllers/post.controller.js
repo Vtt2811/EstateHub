@@ -1,6 +1,28 @@
 import prisma from "../lib/prisma.js";
 import jwt from "jsonwebtoken";
 
+const geocodeAddress = async (address, city) => {
+    try {
+        const query = encodeURIComponent(`${address}, ${city}`);
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`, {
+            headers: {
+                'User-Agent': 'EstateHub-App/1.0 (Contact: admin@estatehub.com)'
+            }
+        });
+        const data = await response.json();
+        if (data && data.length > 0) {
+            return {
+                latitude: data[0].lat,
+                longitude: data[0].lon
+            };
+        }
+        return null;
+    } catch (err) {
+        console.error("Geocoding error:", err);
+        return null;
+    }
+};
+
 export const getPosts = async (req, res) => {
   const query = req.query;
   console.log(query);
@@ -14,6 +36,16 @@ export const getPosts = async (req, res) => {
         price: {
           gte: parseInt(query.minPrice) || undefined,
           lte: parseInt(query.maxPrice) || undefined,
+        },
+      },
+      include: {
+        user: {
+          select: {
+            username: true,
+            avatar: true,
+            role: true,
+            agentStatus: true,
+          },
         },
       },
     });
@@ -38,6 +70,8 @@ export const getPost = async (req, res) => {
           select: {
             username: true,
             avatar: true,
+            role: true,
+            agentStatus: true,
           },
         },
       },
@@ -56,11 +90,13 @@ export const getPost = async (req, res) => {
               },
             },
           });
-          res.status(200).json({ ...post, isSaved: saved ? true : false });
+          return res.status(200).json({ ...post, isSaved: saved ? true : false });
         }
+        return res.status(200).json({ ...post, isSaved: false });
       });
+    } else {
+      return res.status(200).json({ ...post, isSaved: false });
     }
-    res.status(200).json({ ...post, isSaved: false });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Failed to get post" });
@@ -72,6 +108,13 @@ export const addPost = async (req, res) => {
   const tokenUserId = req.userId;
 
   try {
+    const coords = await geocodeAddress(body.postData.address, body.postData.city);
+    if (!coords) {
+        return res.status(400).json({ message: "Could not find coordinates for this address. Please check your address and try again." });
+    }
+    body.postData.latitude = coords.latitude;
+    body.postData.longitude = coords.longitude;
+
     const newPost = await prisma.post.create({
       data: {
         ...body.postData,
@@ -101,6 +144,13 @@ export const updatePost = async (req, res) => {
     if (post.userId !== tokenUserId) {
       return res.status(403).json({ message: "Not Authorized!" });
     }
+
+    const coords = await geocodeAddress(body.postData.address, body.postData.city);
+    if (!coords) {
+        return res.status(400).json({ message: "Could not find coordinates for this address. Please check your address and try again." });
+    }
+    body.postData.latitude = coords.latitude;
+    body.postData.longitude = coords.longitude;
 
     const updatedPost = await prisma.post.update({
       where: { id },

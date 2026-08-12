@@ -25,7 +25,8 @@ export const getUser = async (req, res) => {
 export const updateUser = async (req, res) => {
   const id = req.params.id;
   const tokenUserId = req.userId;
-  const { password, avatar, ...inputs } = req.body;
+  // Destructure and discard protected fields to prevent self-elevation
+  const { password, avatar, role, agentStatus, licenseDocument, rejectionReason, ...inputs } = req.body;
 
   if (id !== tokenUserId) {
     return res.status(403).json({ message: "Not Authorized!" });
@@ -116,11 +117,32 @@ export const profilePosts = async (req, res) => {
   try {
     const userPosts = await prisma.post.findMany({
       where: { userId: tokenUserId },
+      include: {
+        user: {
+          select: {
+            username: true,
+            avatar: true,
+            role: true,
+            agentStatus: true,
+          },
+        },
+      },
     });
     const saved = await prisma.savedPost.findMany({
       where: { userId: tokenUserId },
       include: {
-        post: true,
+        post: {
+          include: {
+            user: {
+              select: {
+                username: true,
+                avatar: true,
+                role: true,
+                agentStatus: true,
+              },
+            },
+          },
+        },
       },
     });
 

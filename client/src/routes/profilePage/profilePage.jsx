@@ -37,6 +37,20 @@ function ProfilePage() {
     navigate(`/posts/update/${postId}`);
   };
 
+  const role = currentUser?.role;
+  const agentStatus = currentUser?.agentStatus;
+  const rejectionReason = currentUser?.rejectionReason;
+
+  // Can the user post listings?
+  const canPost =
+    role === "SELLER" ||
+    role === "ADMIN" ||
+    (role === "AGENT" && agentStatus === "APPROVED");
+
+  // Determine banner state for agents
+  const showPendingBanner = role === "AGENT" && agentStatus === "PENDING";
+  const showRejectedBanner = role === "AGENT" && agentStatus === "REJECTED";
+
   return (
     <div className="min-h-[calc(100vh-72px)] flex flex-col lg:flex-row bg-surface-50">
       {/* Details Container */}
@@ -51,7 +65,21 @@ function ProfilePage() {
                 className="w-16 h-16 rounded-full object-cover ring-4 ring-accent-100"
               />
               <div>
-                <h1 className="font-heading text-heading text-navy-900">{currentUser.username}</h1>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="font-heading text-heading text-navy-900">{currentUser.username}</h1>
+                  {/* Agent badge — only for APPROVED agents */}
+                  {role === "AGENT" && agentStatus === "APPROVED" && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-accent-50 border border-accent-200 rounded-pill text-accent-700 font-body font-semibold text-caption">
+                      🏅 Verified Agent
+                    </span>
+                  )}
+                  {/* Role badge for Admin */}
+                  {role === "ADMIN" && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-navy-900 rounded-pill text-white font-body font-semibold text-caption">
+                      ⚙ Admin
+                    </span>
+                  )}
+                </div>
                 <p className="text-navy-400 font-body text-body-sm">{currentUser.email}</p>
               </div>
             </div>
@@ -66,13 +94,57 @@ function ProfilePage() {
           </div>
         </div>
 
+        {/* Agent Status Banners */}
+        {showPendingBanner && (
+          <div className="bg-amber-50 border border-amber-200 rounded-card p-5 flex items-start gap-3">
+            <span className="text-amber-500 text-2xl flex-shrink-0">⏳</span>
+            <div>
+              <h3 className="font-heading text-subheading text-amber-800 mb-1">Account Pending Review</h3>
+              <p className="font-body text-body-sm text-amber-700">
+                Your agent account is awaiting admin approval. Once approved, you'll be able to post and manage listings. We'll notify you when your account is reviewed.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {showRejectedBanner && (
+          <div className="bg-red-50 border border-red-200 rounded-card p-5 flex items-start gap-3">
+            <span className="text-red-500 text-2xl flex-shrink-0">❌</span>
+            <div>
+              <h3 className="font-heading text-subheading text-red-800 mb-1">Agent Application Rejected</h3>
+              <p className="font-body text-body-sm text-red-700 mb-2">
+                Your agent account application was not approved. You cannot post listings at this time.
+              </p>
+              {rejectionReason && (
+                <div className="bg-red-100 border border-red-200 rounded-btn p-3">
+                  <p className="font-body font-semibold text-caption text-red-800 mb-1">Reason provided by admin:</p>
+                  <p className="font-body text-body-sm text-red-700 italic">"{rejectionReason}"</p>
+                </div>
+              )}
+              <p className="font-body text-caption text-red-600 mt-2">
+                Please contact support if you believe this is an error.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* My Listings */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-heading text-xl text-navy-900">My Property Listings</h2>
-            <Link to="/add" className="btn-primary !py-2 !px-4">
-              + Add Property
-            </Link>
+            {canPost ? (
+              <Link to="/add" className="btn-primary !py-2 !px-4">
+                + Add Property
+              </Link>
+            ) : showPendingBanner ? (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 border border-amber-200 text-amber-700 font-body text-caption rounded-btn">
+                ⏳ Pending Approval
+              </span>
+            ) : showRejectedBanner ? (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 border border-red-200 text-red-700 font-body text-caption rounded-btn">
+                ✗ Access Denied
+              </span>
+            ) : null}
           </div>
           <Suspense fallback={<div className="py-8 text-center text-navy-400">Loading listings...</div>}>
             <Await resolve={data.postResponse} errorElement={<p className="text-red-500">Error loading posts!</p>}>

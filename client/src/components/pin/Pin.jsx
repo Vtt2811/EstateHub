@@ -32,7 +32,7 @@ function Pin({ item }) {
               {item.title}
             </Link>
             <p className="text-caption text-navy-400">{item.bedroom} bedroom · {item.bathroom} bath</p>
-            <p className="font-heading font-bold text-accent-600 text-body-sm">${item.price.toLocaleString()}</p>
+            <p className="font-heading font-bold text-accent-600 text-body-sm">₹{item.price.toLocaleString('en-IN')}</p>
           </div>
         </div>
       </Popup>

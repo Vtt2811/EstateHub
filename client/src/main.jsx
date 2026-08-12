@@ -4,12 +4,15 @@ import App from "./App.jsx";
 import "./index.scss";
 import { AuthContextProvider } from "./context/AuthContext.jsx";
 import { SocketContextProvider } from "./context/SocketContext.jsx";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <AuthContextProvider>
       <SocketContextProvider>
         <App />
+        <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar={false} closeOnClick pauseOnHover theme="light" />
       </SocketContextProvider>
     </AuthContextProvider>
   </React.StrictMode>

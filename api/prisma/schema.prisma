@@ -46,6 +46,19 @@ enum Property {
   land
 }
 
+enum Role {
+  BUYER
+  SELLER
+  AGENT
+  ADMIN
+}
+
+enum AgentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model PostDetail {
   id         String  @id @default(auto()) @map("_id") @db.ObjectId
   desc       String
@@ -72,16 +85,23 @@ model SavedPost {
 }
 
 model User {
-  id         String      @id @default(auto()) @map("_id") @db.ObjectId
-  email      String      @unique
-  username   String      @unique
-  password   String
-  avatar     String?
-  createdAt  DateTime    @default(now())
-  posts      Post[]
-  savedPosts SavedPost[]
-  chats      Chat[]      @relation(fields: [chatIDs], references: [id])
-  chatIDs    String[]    @db.ObjectId
+  id               String      @id @default(auto()) @map("_id") @db.ObjectId
+  email            String      @unique
+  username         String      @unique
+  password         String
+  avatar           String?
+  createdAt        DateTime    @default(now())
+  posts            Post[]
+  savedPosts       SavedPost[]
+  chats            Chat[]      @relation(fields: [chatIDs], references: [id])
+  chatIDs          String[]    @db.ObjectId
+  role             Role        @default(BUYER)
+  agentStatus      AgentStatus?
+  licenseDocument  String?
+  rejectionReason  String?
+  isVerified       Boolean     @default(false)
+  verificationToken String?
+  verificationExpiry DateTime?
 }
 
 model Chat {

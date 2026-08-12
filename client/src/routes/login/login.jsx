@@ -70,7 +70,21 @@ function Login() {
               />
             </div>
 
-            {error && <p className="text-red-500 text-body-sm">{error}</p>}
+            {error && (
+              <div className="text-red-500 text-body-sm">
+                <p>{error}</p>
+                {error === 'Please verify your email before logging in.' && (
+                  <div className="flex flex-col gap-2 mt-3">
+                    <Link to="/verify-email" className="text-accent-600 font-semibold hover:underline inline-block">
+                      Verify / Resend Email
+                    </Link>
+                    <Link to="/update-email" className="text-accent-600 font-semibold hover:underline inline-block">
+                      Entered wrong email? Update it here
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
 
             <button disabled={isLoading} className="btn-primary w-full !py-3.5">
               {isLoading ? "Signing in..." : "Sign In"}
@@ -90,8 +104,8 @@ function Login() {
           <div className="absolute inset-0 bg-accent-500/5 backdrop-blur-3xl" />
           <div className="relative z-10">
             <Link to="/" className="flex items-center gap-2.5">
-              <div className="w-8 h-8 bg-accent-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-heading font-bold text-base leading-none">E</span>
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden">
+                <img src="/logo.png" alt="EstateHub Logo" className="w-full h-full object-cover" />
               </div>
               <span className="font-heading font-bold text-2xl tracking-tight text-white">
                 Estate<span className="text-accent-400">Hub</span>

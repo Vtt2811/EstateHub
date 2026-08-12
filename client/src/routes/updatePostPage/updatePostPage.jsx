@@ -49,8 +49,6 @@ const UpdatePostPage = () => {
           bathroom: parseInt(inputs.bathroom),
           type: inputs.type,
           property: inputs.property,
-          latitude: inputs.latitude,
-          longitude: inputs.longitude,
           images: images,
         },
         postDetail: {
@@ -94,7 +92,7 @@ const UpdatePostPage = () => {
                 <input id="title" name="title" type="text" defaultValue={postData.title} required className="input-field" />
               </div>
               <div>
-                <label htmlFor="price" className="label-text mb-1 block">Price ($)</label>
+                <label htmlFor="price" className="label-text mb-1 block">Price (₹)</label>
                 <input id="price" name="price" type="number" min={0} defaultValue={postData.price} required className="input-field" />
               </div>
               <div>
@@ -126,14 +124,6 @@ const UpdatePostPage = () => {
               <div>
                 <label htmlFor="size" className="label-text mb-1 block">Size (sqft)</label>
                 <input min={0} id="size" name="size" type="number" defaultValue={postData.postDetail?.size} className="input-field" />
-              </div>
-              <div>
-                <label htmlFor="latitude" className="label-text mb-1 block">Latitude</label>
-                <input id="latitude" name="latitude" type="text" defaultValue={postData.latitude} required className="input-field" />
-              </div>
-              <div>
-                <label htmlFor="longitude" className="label-text mb-1 block">Longitude</label>
-                <input id="longitude" name="longitude" type="text" defaultValue={postData.longitude} required className="input-field" />
               </div>
               <div>
                 <label htmlFor="type" className="label-text mb-1 block">Type</label>

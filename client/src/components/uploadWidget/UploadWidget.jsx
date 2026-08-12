@@ -1,10 +1,13 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useId, useState } from "react";
 
 // Create a context to manage the script loading state
 const CloudinaryScriptContext = createContext();
 
-function UploadWidget({ uwConfig, setPublicId, setState }) {
+function UploadWidget({ uwConfig, setPublicId, setState, buttonLabel = "Upload" }) {
   const [loaded, setLoaded] = useState(false);
+  // useId gives a stable, unique ID per component instance (React 18+)
+  const uniqueId = useId().replace(/:/g, "_");
+  const buttonId = `upload_widget_${uniqueId}`;
 
   useEffect(() => {
     // Check if the script is already loaded
@@ -37,7 +40,7 @@ function UploadWidget({ uwConfig, setPublicId, setState }) {
         }
       );
 
-      document.getElementById("upload_widget").addEventListener(
+      document.getElementById(buttonId).addEventListener(
         "click",
         function () {
           myWidget.open();
@@ -50,11 +53,11 @@ function UploadWidget({ uwConfig, setPublicId, setState }) {
   return (
     <CloudinaryScriptContext.Provider value={{ loaded }}>
       <button
-        id="upload_widget"
+        id={buttonId}
         className="cloudinary-button"
         onClick={initializeCloudinaryWidget}
       >
-        Upload
+        {buttonLabel}
       </button>
     </CloudinaryScriptContext.Provider>
   );

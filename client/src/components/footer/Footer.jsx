@@ -28,8 +28,8 @@ const Footer = () => {
           {/* Brand Column */}
           <div className="lg:col-span-4">
             <Link to="/" className="flex items-center gap-2.5 mb-5">
-              <div className="w-9 h-9 bg-accent-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-heading font-bold text-lg leading-none">E</span>
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden">
+                <img src="/logo.png" alt="EstateHub Logo" className="w-full h-full object-cover" />
               </div>
               <span className="font-heading font-bold text-xl text-white tracking-tight">
                 Estate<span className="text-accent-400">Hub</span>

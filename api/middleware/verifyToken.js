@@ -15,7 +15,9 @@ export const verifyToken = async (req, res, next) => {
         return res.status(403).json({ message: "Token is not Valid!" });
       }
 
-      req.userId = payload.id; // Attach user ID to request
+      req.userId = payload.id;           // Attach user ID to request
+      req.userRole = payload.role;       // Attach role to request
+      req.userAgentStatus = payload.agentStatus; // Attach agent status (may be undefined)
       next();
     });
   } catch (error) {

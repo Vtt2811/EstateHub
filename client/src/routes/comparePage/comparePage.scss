@@ -1,0 +1,173 @@
+.compare-page {
+  min-height: calc(100vh - 72px);
+  background: #faf9f7;
+  padding-bottom: 100px; // space for compare bar
+
+  &__empty {
+    min-height: calc(100vh - 72px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+  }
+
+  &__spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid #eae5dd;
+    border-top-color: #ef7a1e;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  &__table-wrapper {
+    overflow-x: auto;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+
+    th, td {
+      vertical-align: middle;
+      text-align: left;
+    }
+  }
+
+  &__label-col {
+    width: 160px;
+    min-width: 140px;
+  }
+
+  &__th {
+    padding: 16px 20px;
+    background: #141d31;
+    color: white;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    min-width: 200px;
+
+    &--label {
+      background: #1e2a45;
+    }
+
+    &-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    &-name {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 0.875rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 160px;
+    }
+
+    &-remove {
+      width: 24px;
+      height: 24px;
+      background: rgba(255,255,255,0.15);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.2s;
+
+      &:hover {
+        background: #ef7a1e;
+      }
+    }
+  }
+
+  &__td {
+    padding: 14px 20px;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 0.875rem;
+    color: #1e2a45;
+    border-right: 1px solid #eae5dd;
+    vertical-align: middle;
+
+    &--label {
+      font-weight: 600;
+      color: #6680b3;
+      background: #f5f3ef;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+  }
+
+  &__tr--even td {
+    background: white;
+  }
+
+  &__tr--odd td {
+    background: #faf9f7;
+  }
+
+  &__tr--odd td.compare-page__td--label,
+  &__tr--even td.compare-page__td--label {
+    background: #f5f3ef;
+  }
+
+  &__cell-img {
+    width: 100%;
+    max-width: 180px;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 8px;
+    transition: opacity 0.2s;
+    
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  &__cell-link {
+    color: #141d31;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.2s;
+
+    &:hover {
+      color: #ef7a1e;
+    }
+  }
+
+  &__price {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #e06114;
+  }
+
+  &__price-sub {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: #8da3cb;
+    margin-left: 2px;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

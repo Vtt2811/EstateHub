@@ -1,7 +1,23 @@
 import { Link } from "react-router-dom";
 import "./card.scss";
+import { useCompareStore } from "../../lib/compareStore";
 
 function Card({ item, onDelete, onUpdate }) {
+  const addToCompare = useCompareStore((s) => s.addToCompare);
+  const removeFromCompare = useCompareStore((s) => s.removeFromCompare);
+  const compareIds = useCompareStore((s) => s.compareIds);
+  const isSelected = compareIds.includes(item.id);
+
+  const handleCompareToggle = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isSelected) {
+      removeFromCompare(item.id);
+    } else {
+      addToCompare(item.id);
+    }
+  };
+
   return (
     <div className="card-base group">
       <Link to={`/${item.id}`} className="block relative overflow-hidden aspect-[4/3]">
@@ -10,11 +26,37 @@ function Card({ item, onDelete, onUpdate }) {
           alt={item.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <div className="absolute top-3 left-3">
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
           <span className="inline-block px-3 py-1 bg-navy-900/80 backdrop-blur-sm text-white font-body text-caption font-semibold rounded-pill uppercase tracking-wide">
             {item.type === "rent" ? "For Rent" : "For Sale"}
           </span>
+          {item.user?.role === "AGENT" && item.user?.agentStatus === "APPROVED" && (
+            <span className="inline-block px-2.5 py-1 bg-accent-500/90 backdrop-blur-sm text-white font-body text-[10px] font-semibold rounded-pill">
+              🏅 Verified Agent
+            </span>
+          )}
         </div>
+
+        {/* Compare Toggle */}
+        <button
+          onClick={handleCompareToggle}
+          title={isSelected ? "Remove from compare" : "Add to compare"}
+          className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-250 shadow-md
+            ${isSelected
+              ? "bg-accent-500 text-white scale-110"
+              : "bg-white/90 text-navy-500 hover:bg-accent-50 hover:text-accent-600"
+            }`}
+        >
+          {isSelected ? (
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+          ) : (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+          )}
+        </button>
       </Link>
       <div className="p-4 flex flex-col gap-2.5">
         <div className="flex items-start justify-between gap-2">
@@ -28,8 +70,8 @@ function Card({ item, onDelete, onUpdate }) {
           </svg>
           <span className="truncate">{item.address}</span>
         </p>
-        <p className="font-heading text-xl font-bold text-accent-600">
-          ${item.price.toLocaleString()}
+        <p className="font-heading font-bold text-accent-600 text-lg sm:text-xl">
+          ₹{item.price.toLocaleString('en-IN')}
           {item.type === "rent" && <span className="text-navy-400 font-body text-body-sm font-normal">/mo</span>}
         </p>
         <div className="flex items-center gap-4 pt-2 mt-auto border-t border-surface-200">

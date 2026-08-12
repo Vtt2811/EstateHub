@@ -32,8 +32,6 @@ function NewPostPage() {
           bathroom: parseInt(inputs.bathroom),
           type: inputs.type,
           property: inputs.property,
-          latitude: inputs.latitude,
-          longitude: inputs.longitude,
           images: images,
         },
         postDetail: {
@@ -70,7 +68,7 @@ function NewPostPage() {
                 <input id="title" name="title" type="text" placeholder="e.g. Modern Apartment with City View" required className="input-field" />
               </div>
               <div>
-                <label htmlFor="price" className="label-text mb-1 block">Price ($)</label>
+                <label htmlFor="price" className="label-text mb-1 block">Price (₹)</label>
                 <input id="price" name="price" type="number" min={0} placeholder="1200" required className="input-field" />
               </div>
               <div>
@@ -102,14 +100,6 @@ function NewPostPage() {
               <div>
                 <label htmlFor="size" className="label-text mb-1 block">Size (sqft)</label>
                 <input min={0} id="size" name="size" type="number" placeholder="850" className="input-field" />
-              </div>
-              <div>
-                <label htmlFor="latitude" className="label-text mb-1 block">Latitude</label>
-                <input id="latitude" name="latitude" type="text" placeholder="40.7128" required className="input-field" />
-              </div>
-              <div>
-                <label htmlFor="longitude" className="label-text mb-1 block">Longitude</label>
-                <input id="longitude" name="longitude" type="text" placeholder="-74.0060" required className="input-field" />
               </div>
               <div>
                 <label htmlFor="type" className="label-text mb-1 block">Type</label>

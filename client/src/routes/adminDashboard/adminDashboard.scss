@@ -1,0 +1,12 @@
+.admin-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #eae5dd;
+  border-top-color: #ef7a1e;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

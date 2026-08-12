@@ -21,8 +21,8 @@ function Navbar() {
         <div className="flex items-center justify-between h-[72px]">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 bg-accent-500 rounded-lg flex items-center justify-center transition-transform duration-250 group-hover:scale-110">
-              <span className="text-white font-heading font-bold text-lg leading-none">E</span>
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center transition-transform duration-250 group-hover:scale-110 overflow-hidden">
+              <img src="/logo.png" alt="EstateHub Logo" className="w-full h-full object-cover" />
             </div>
             <span className="font-heading font-bold text-xl text-navy-900 tracking-tight">
               Estate<span className="text-accent-500">Hub</span>
@@ -49,6 +49,14 @@ function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             {currentUser ? (
               <div className="flex items-center gap-3">
+                {currentUser.role === "ADMIN" && (
+                  <Link
+                    to="/admin"
+                    className={`nav-link ${isActive("/admin") ? "nav-link-active" : ""} !text-accent-600 font-semibold`}
+                  >
+                    ⚙ Admin
+                  </Link>
+                )}
                 <Link to="/profile" className="flex items-center gap-2.5 group">
                   <img
                     src={currentUser.avatar || "/noavatar.jpg"}
@@ -120,6 +128,15 @@ function Navbar() {
             <hr className="border-surface-200 my-3" />
             {currentUser ? (
               <>
+                {currentUser.role === "ADMIN" && (
+                  <Link
+                    to="/admin"
+                    className="mobile-nav-link !text-accent-600 font-semibold"
+                    onClick={() => setOpen(false)}
+                  >
+                    ⚙ Admin Dashboard
+                  </Link>
+                )}
                 <Link
                   to="/profile"
                   className="mobile-nav-link"
