@@ -73,16 +73,6 @@ function Login() {
             {error && (
               <div className="text-red-500 text-body-sm">
                 <p>{error}</p>
-                {error === 'Please verify your email before logging in.' && (
-                  <div className="flex flex-col gap-2 mt-3">
-                    <Link to="/verify-email" className="text-accent-600 font-semibold hover:underline inline-block">
-                      Verify / Resend Email
-                    </Link>
-                    <Link to="/update-email" className="text-accent-600 font-semibold hover:underline inline-block">
-                      Entered wrong email? Update it here
-                    </Link>
-                  </div>
-                )}
               </div>
             )}
 

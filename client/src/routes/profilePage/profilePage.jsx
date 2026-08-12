@@ -3,13 +3,16 @@ import List from "../../components/list/List";
 import "./profilePage.scss";
 import apiRequest from "../../lib/apiRequest";
 import { Await, Link, useLoaderData, useNavigate } from "react-router-dom";
-import { Suspense, useContext } from "react";
+import { Suspense, useContext, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
+import Notification from "../../components/notification/Notification";
 
 function ProfilePage() {
   const data = useLoaderData();
   const { updateUser, currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [notification, setNotification] = useState({ message: "", type: "", visible: false });
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -18,6 +21,19 @@ function ProfilePage() {
       navigate("/");
     } catch (err) {
       console.log(err);
+    }
+  };
+
+  const handleVerifyEmail = async () => {
+    try {
+      setIsVerifying(true);
+      const res = await apiRequest.post("/auth/send-verification");
+      setNotification({ message: res.data.message || "Verification email sent. Please check your inbox.", type: "success", visible: true });
+    } catch (err) {
+      const msg = err?.response?.data?.message || "Failed to send verification email.";
+      setNotification({ message: msg, type: "error", visible: true });
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -91,6 +107,45 @@ function ProfilePage() {
                 Logout
               </button>
             </div>
+          </div>
+        </div>
+
+        {/* Email Verification Section */}
+        <div className="bg-white rounded-card shadow-card p-6 md:p-8 border-t border-surface-200">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="font-heading text-lg text-navy-900 mb-1">Email Verification</h2>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-navy-400 font-body text-body-sm">Email:</span>
+                <span className="text-navy-900 font-body text-body-sm font-medium">{currentUser.email}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-navy-400 font-body text-body-sm">Status:</span>
+                {currentUser.isVerified ? (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-50 text-green-700 font-body font-semibold text-caption rounded-pill border border-green-200">
+                    ✅ Email Verified
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 text-amber-700 font-body font-semibold text-caption rounded-pill border border-amber-200">
+                    ⚠️ Email Not Verified
+                  </span>
+                )}
+              </div>
+              {!currentUser.isVerified && (
+                <p className="font-body text-body-sm text-navy-400 mt-3 max-w-lg">
+                  Your email address has not been verified yet. Verifying your email helps secure your account.
+                </p>
+              )}
+            </div>
+            {!currentUser.isVerified && (
+              <button 
+                onClick={handleVerifyEmail} 
+                disabled={isVerifying}
+                className="btn-primary whitespace-nowrap"
+              >
+                {isVerifying ? "Sending..." : "Verify Email"}
+              </button>
+            )}
           </div>
         </div>
 
@@ -190,6 +245,13 @@ function ProfilePage() {
           </Await>
         </Suspense>
       </div>
+
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        visible={notification.visible}
+        onClose={() => setNotification({ ...notification, visible: false })}
+      />
     </div>
   );
 }

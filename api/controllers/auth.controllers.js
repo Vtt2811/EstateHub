@@ -92,22 +92,8 @@ export const register = async (req, res) => {
 
         console.log('Registered user:', newUser.username, 'with role:', newUser.role);
 
-        // Send verification email
-        try {
-            const transporter = getTransporter();
-            const verificationUrl = `${process.env.CLIENT_URL}/verify-email?token=${verificationToken}`;
-            await transporter.sendMail({
-                from: process.env.EMAIL_USER,
-                to: email,
-                subject: 'Verify your EstateHub account',
-                html: `<p>Please verify your email by clicking the link below:</p><a href="${verificationUrl}">${verificationUrl}</a>`
-            });
-            console.log(`Verification email sent to ${email}. Link: ${verificationUrl}`);
-        } catch (mailError) {
-            console.error('Failed to send verification email:', mailError);
-        }
-
-        res.status(201).json({ message: 'Please check your email to verify your account.' });
+        // Removed automatic verification email sending to make verification optional
+        res.status(201).json({ message: 'Registration successful. You can now log in.' });
     } catch (error) {
         console.log('Register error:', error);
         res.status(500).json({ message: 'Failed to create user' });
@@ -131,10 +117,6 @@ export const login = async (req, res) => {
 
         if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid password' });
-        }
-
-        if (!user.isVerified) {
-            return res.status(403).json({ message: 'Please verify your email before logging in.' });
         }
 
         // GENERATE A COOKIE TOKEN AND SEND IT TO THE USER
@@ -275,5 +257,43 @@ export const updateEmail = async (req, res) => {
     } catch (err) {
         console.error("Update email error:", err);
         res.status(500).json({ message: 'Failed to update email' });
+    }
+};
+
+export const sendVerificationEmail = async (req, res) => {
+    try {
+        const userId = req.userId; // Provided by verifyToken middleware
+
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (user.isVerified) {
+            return res.status(400).json({ message: 'Email is already verified' });
+        }
+
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        const verificationExpiry = new Date(Date.now() + 3600000);
+
+        await prisma.user.update({
+            where: { id: user.id },
+            data: { verificationToken, verificationExpiry }
+        });
+
+        const transporter = getTransporter();
+        const verificationUrl = `${process.env.CLIENT_URL}/verify-email?token=${verificationToken}`;
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: user.email,
+            subject: 'Verify your EstateHub account',
+            html: `<p>Please verify your email by clicking the link below:</p><a href="${verificationUrl}">${verificationUrl}</a>`
+        });
+        
+        console.log(`Optional verification email sent to ${user.email}. Link: ${verificationUrl}`);
+        res.status(200).json({ message: 'Verification email sent. Please check your inbox.' });
+    } catch (err) {
+        console.error("Send verification email error:", err);
+        res.status(500).json({ message: 'Failed to send verification email' });
     }
 };
