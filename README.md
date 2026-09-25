@@ -145,33 +145,112 @@ For further details, refer to the full documentation included in the repository.
 
 ---
 
-## Recent Changes (September 2026)
+## 📅 Development Log (Month-Wise)
 
-### 🔧 Bug Fixes & Improvements
+### July 2026 — Project Foundation & Core Development
+
+> Initial project setup, core architecture, and base functionality.
+
+#### 🏗️ Project Setup
+- Initialized the GitHub repository and project structure with `client/`, `api/`, and `socket/` directories.
+- Set up Node.js + Express backend with Prisma ORM and MongoDB.
+- Bootstrapped React frontend with Vite, Tailwind CSS, and SCSS modules.
+- Configured `.env` files, `.gitignore`, and environment variables.
+
+#### 🖥️ Frontend Core
+- Built reusable components: **Navbar**, **Footer**, **SearchBar**, **Card**, **Slider**, **Map**, **Pin**, **Filter**, **Chat**, **UploadWidget**, **List**.
+- Created all major pages: **HomePage**, **ListPage**, **SinglePage**, **ProfilePage**, **ProfileUpdatePage**, **NewPostPage**, **UpdatePostPage**, **LoginPage**, **RegisterPage**.
+- Integrated **Leaflet** for interactive property location maps.
+- Added **Cloudinary** upload widget for property image management.
+- Set up **React Router** for client-side navigation with route loaders.
+
+#### ⚙️ Backend Core
+- Designed the Prisma schema with models: **User**, **Post**, **PostDetail**, **SavedPost**, **Chat**, **Message**.
+- Built RESTful API endpoints for authentication, users, posts, and chats.
+- Implemented JWT-based authentication with cookie tokens.
+- Integrated **bcryptjs** for secure password hashing.
+
+#### 💬 Real-Time Communication
+- Set up **Socket.io** server for real-time chat messaging between users.
+- Built the Chat component with live message sending and receiving.
+
+---
+
+### August 2026 — Feature Expansion & Role-Based Access
+
+> Major feature additions: role system, admin dashboard, email verification, property comparison, and complete UI redesign.
+
+#### 🎨 Modern UI Redesign (August 7)
+- Completely redesigned the frontend with a premium dark navy + warm accent color palette.
+- Introduced custom Tailwind design tokens: `navy`, `accent`, `gold`, `surface` color scales.
+- Added custom typography with **Playfair Display** (headings) and **Plus Jakarta Sans** (body).
+- Built a unified design system with reusable button styles (`btn-primary`, `btn-secondary`, `btn-outline`, `btn-ghost`), input fields, card components, and layout utilities.
+- Added responsive layouts, smooth transitions, hover micro-animations, and custom scrollbars.
+- Created launch scripts (`start-estatehub.bat`, `start-estatehub.ps1`) for easy local development.
+- Added technical documentation and architecture diagrams in `docs/`.
+
+#### 👥 Role-Based Access Control (August 12)
+- Added the **Role** system with four roles: `BUYER`, `SELLER`, `AGENT`, `ADMIN`.
+- Implemented `AGENT` workflow with `AgentStatus` (`PENDING`, `APPROVED`, `REJECTED`) and license document upload during registration.
+- Created `requireRole` middleware for role-based API route protection.
+- Built the **Admin Dashboard** (`/admin`) for managing users and approving/rejecting agent applications with rejection reasons.
+- Added `RequireAdmin` route guard to protect admin-only pages.
+
+#### ✉️ Email Verification System (August 12)
+- Added **Nodemailer** integration with Gmail for sending verification emails.
+- Created verification token generation with 1-hour expiry using `crypto`.
+- Built API endpoints: `verifyEmail`, `resendVerification`, `sendVerificationEmail`, `updateEmail`.
+- Created dedicated pages: **VerifyEmailPage** (`/verify-email`) and **UpdateEmailPage** (`/update-email`).
+- Added email verification status display and "Verify Email" button on the Profile page.
+
+#### 🔄 Property Comparison Feature (August 12)
+- Built a **Compare Bar** component that lets users add up to 3 properties for side-by-side comparison.
+- Created a dedicated **Compare Page** (`/compare`) with detailed property comparison view.
+- Added **Zustand** state management for the comparison store (`compareStore.js`).
+
+#### 📍 Auto-Geocoding (August 12)
+- Integrated **OpenStreetMap Nominatim** API for automatic address-to-coordinates conversion when creating or updating posts.
+- Removed manual latitude/longitude input from the property form.
+
+#### 🛡️ Additional Backend Features (August 12)
+- Added Indian Rupee (₹) currency formatting with `en-IN` locale across all price displays.
+- Created admin seed script (`seedAdmin.js`) and post seed script (`seedPosts.js`).
+- Enhanced the registration form with password strength validation, role selection cards, and agent license upload.
+
+---
+
+### September 2026 — Bug Fixes, Messaging & Polish
+
+> Final round of fixes, dedicated messaging system, and UI polish.
+
+#### 🔧 Bug Fixes & Improvements (September 23–25)
 
 1. **Indian Rupee Currency Format**
-   - Updated the Compare Bar price display from `$` (USD) to `₹` (INR) with Indian locale formatting (`en-IN`) to match the rest of the app.
+   - Fixed the Compare Bar price display from `$` (USD) to `₹` (INR) with `en-IN` locale to match the rest of the app.
 
 2. **Email Verification Made Optional**
-   - Removed the mandatory email verification check from login — users can now log in immediately after registration without verifying their email first.
-   - Registration still sends a verification email, but if the email service fails (e.g., missing credentials), registration no longer crashes — the error is silently logged on the server.
+   - Removed the mandatory email verification check from login — users can now log in and use the app immediately after registration.
+   - Registration still attempts to send a verification email, but if the email service fails (e.g., missing credentials), registration completes gracefully — the error is silently logged on the server.
 
-3. **Removed Unused Script Files**
+3. **Registration Error Fix**
+   - Wrapped the email-sending step in a try/catch so that registration no longer returns a "Failed to create user" error when the email service is unavailable.
+
+4. **Removed Unused Script Files**
    - Deleted leftover development/test scripts from `api/scripts/` that were not needed in the final project (`testRoles.js`, `testOptional.js`, `testPrisma.js`, `testRollback.js`, `seedTestUser.js`, `checkMongo.mjs`, `updateAdmin.js`).
 
-### 🎨 UI & UX Enhancements
+#### 🎨 UI & UX Enhancements (September 25)
 
-4. **Seller-Specific Home Page**
+5. **Seller-Specific Home Page**
    - Sellers no longer see the property search bar on the Home page. Instead, they see a personalized "Welcome back, Seller!" card with quick-action buttons for adding properties and viewing their listings.
 
-5. **Logo Visibility Fix**
+6. **Logo Visibility Fix**
    - Added a white background container behind the logo on the Login and Register pages so it is clearly visible against the dark navy hero sections.
 
-6. **Role-Aware Navigation**
+7. **Role-Aware Navigation**
    - The Navbar now shows "Add Properties" (linking to `/add`) for Seller accounts instead of "Properties" (linking to `/list`).
    - Sellers are redirected away from the `/list` (browse) page to their profile.
 
-7. **Font Size Increase**
+8. **Font Size Increase**
    - Increased all base font sizes across the project via the Tailwind config for better readability:
      - `caption`: 12px → 14px
      - `body-sm`: 14px → 16px
@@ -179,20 +258,19 @@ For further details, refer to the full documentation included in the repository.
      - `body-lg`: 18px → 20px
      - `subheading`: 20px → 22px
 
-### 💬 Messaging System
+#### 💬 Messaging System (September 25)
 
-8. **Send Message Button Fixed**
+9. **Send Message Button Fixed**
    - The "Send Message" button on property detail pages was non-functional — it now creates a chat with the property owner and navigates to the Messages page.
    - Fixed a backend bug where the property owner's `id` was not included in API responses, causing chat initialization to fail.
 
-9. **Dedicated Messages Page (`/messages`)**
-   - Created a brand-new, full-page messaging UI at `/messages` with a premium dark navy header and themed design.
-   - Chat functionality has been moved out of the Profile page sidebar and into this dedicated route.
-   - A Messages icon with an unread notification badge has been added to the Navbar (both desktop and mobile menus).
+10. **Dedicated Messages Page (`/messages`)**
+    - Created a brand-new, full-page messaging UI at `/messages` with a premium dark navy header and themed design.
+    - Chat functionality has been moved out of the Profile page sidebar into this dedicated route.
+    - A Messages icon with an unread notification badge has been added to the Navbar (both desktop and mobile menus).
 
-10. **Duplicate Chat Prevention**
+11. **Duplicate Chat Prevention**
     - The backend `addChat` controller now checks for an existing conversation between two users before creating a new one, preventing duplicate chat entries.
-
 
 
 ## Table of Contents
