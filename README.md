@@ -212,7 +212,7 @@ For further details, refer to the full documentation included in the repository.
 - Integrated **OpenStreetMap Nominatim** API for automatic address-to-coordinates conversion when creating or updating posts.
 - Removed manual latitude/longitude input from the property form.
 
-#### 🛡️ Additional Backend Features (August 12)
+#### 🛡️ Additional Backend Features (August 20)
 - Added Indian Rupee (₹) currency formatting with `en-IN` locale across all price displays.
 - Created admin seed script (`seedAdmin.js`) and post seed script (`seedPosts.js`).
 - Enhanced the registration form with password strength validation, role selection cards, and agent license upload.
@@ -223,7 +223,7 @@ For further details, refer to the full documentation included in the repository.
 
 > Final round of fixes, dedicated messaging system, and UI polish.
 
-#### 🔧 Bug Fixes & Improvements (September 23–25)
+#### 🔧 Bug Fixes & Improvements (September 15–18)
 
 1. **Indian Rupee Currency Format**
    - Fixed the Compare Bar price display from `$` (USD) to `₹` (INR) with `en-IN` locale to match the rest of the app.
@@ -238,7 +238,7 @@ For further details, refer to the full documentation included in the repository.
 4. **Removed Unused Script Files**
    - Deleted leftover development/test scripts from `api/scripts/` that were not needed in the final project (`testRoles.js`, `testOptional.js`, `testPrisma.js`, `testRollback.js`, `seedTestUser.js`, `checkMongo.mjs`, `updateAdmin.js`).
 
-#### 🎨 UI & UX Enhancements (September 25)
+#### 🎨 UI & UX Enhancements (September 20)
 
 5. **Seller-Specific Home Page**
    - Sellers no longer see the property search bar on the Home page. Instead, they see a personalized "Welcome back, Seller!" card with quick-action buttons for adding properties and viewing their listings.
@@ -258,7 +258,7 @@ For further details, refer to the full documentation included in the repository.
      - `body-lg`: 18px → 20px
      - `subheading`: 20px → 22px
 
-#### 💬 Messaging System (September 25)
+#### 💬 Messaging System (September 20)
 
 9. **Send Message Button Fixed**
    - The "Send Message" button on property detail pages was non-functional — it now creates a chat with the property owner and navigates to the Messages page.
