@@ -2,11 +2,17 @@ import "./listPage.scss";
 import Filter from "../../components/filter/Filter";
 import Card from "../../components/card/Card";
 import Map from "../../components/map/Map";
-import { Await, useLoaderData } from "react-router-dom";
-import { Suspense } from "react";
+import { Await, useLoaderData, Navigate } from "react-router-dom";
+import { Suspense, useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
 
 function ListPage() {
   const data = useLoaderData();
+  const { currentUser } = useContext(AuthContext);
+
+  if (currentUser?.role === "SELLER") {
+    return <Navigate to="/profile" replace />;
+  }
 
   return (
     <div className="flex flex-col lg:flex-row min-h-[calc(100vh-72px)]">

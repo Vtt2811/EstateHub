@@ -92,8 +92,22 @@ export const register = async (req, res) => {
 
         console.log('Registered user:', newUser.username, 'with role:', newUser.role);
 
-        // Removed automatic verification email sending to make verification optional
-        res.status(201).json({ message: 'Registration successful. You can now log in.' });
+        // Send verification email automatically on registration
+        try {
+            const transporter = getTransporter();
+            const verificationUrl = `${process.env.CLIENT_URL}/verify-email?token=${verificationToken}`;
+            await transporter.sendMail({
+                from: process.env.EMAIL_USER,
+                to: email,
+                subject: 'Verify your EstateHub account',
+                html: `<p>Please verify your email by clicking the link below:</p><a href="${verificationUrl}">${verificationUrl}</a>`
+            });
+        } catch (emailError) {
+            console.error('Failed to send verification email during registration:', emailError);
+            // Do not fail the registration if email sending fails
+        }
+
+        res.status(201).json({ message: 'Registration successful. Please check your email to verify your account.' });
     } catch (error) {
         console.log('Register error:', error);
         res.status(500).json({ message: 'Failed to create user' });

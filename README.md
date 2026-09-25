@@ -143,6 +143,57 @@ EstateHub was developed as a robust and scalable platform for real estate transa
 
 For further details, refer to the full documentation included in the repository.
 
+---
+
+## Recent Changes (September 2026)
+
+### 🔧 Bug Fixes & Improvements
+
+1. **Indian Rupee Currency Format**
+   - Updated the Compare Bar price display from `$` (USD) to `₹` (INR) with Indian locale formatting (`en-IN`) to match the rest of the app.
+
+2. **Email Verification Made Optional**
+   - Removed the mandatory email verification check from login — users can now log in immediately after registration without verifying their email first.
+   - Registration still sends a verification email, but if the email service fails (e.g., missing credentials), registration no longer crashes — the error is silently logged on the server.
+
+3. **Removed Unused Script Files**
+   - Deleted leftover development/test scripts from `api/scripts/` that were not needed in the final project (`testRoles.js`, `testOptional.js`, `testPrisma.js`, `testRollback.js`, `seedTestUser.js`, `checkMongo.mjs`, `updateAdmin.js`).
+
+### 🎨 UI & UX Enhancements
+
+4. **Seller-Specific Home Page**
+   - Sellers no longer see the property search bar on the Home page. Instead, they see a personalized "Welcome back, Seller!" card with quick-action buttons for adding properties and viewing their listings.
+
+5. **Logo Visibility Fix**
+   - Added a white background container behind the logo on the Login and Register pages so it is clearly visible against the dark navy hero sections.
+
+6. **Role-Aware Navigation**
+   - The Navbar now shows "Add Properties" (linking to `/add`) for Seller accounts instead of "Properties" (linking to `/list`).
+   - Sellers are redirected away from the `/list` (browse) page to their profile.
+
+7. **Font Size Increase**
+   - Increased all base font sizes across the project via the Tailwind config for better readability:
+     - `caption`: 12px → 14px
+     - `body-sm`: 14px → 16px
+     - `body`: 16px → 18px
+     - `body-lg`: 18px → 20px
+     - `subheading`: 20px → 22px
+
+### 💬 Messaging System
+
+8. **Send Message Button Fixed**
+   - The "Send Message" button on property detail pages was non-functional — it now creates a chat with the property owner and navigates to the Messages page.
+   - Fixed a backend bug where the property owner's `id` was not included in API responses, causing chat initialization to fail.
+
+9. **Dedicated Messages Page (`/messages`)**
+   - Created a brand-new, full-page messaging UI at `/messages` with a premium dark navy header and themed design.
+   - Chat functionality has been moved out of the Profile page sidebar and into this dedicated route.
+   - A Messages icon with an unread notification badge has been added to the Navbar (both desktop and mobile menus).
+
+10. **Duplicate Chat Prevention**
+    - The backend `addChat` controller now checks for an existing conversation between two users before creating a new one, preventing duplicate chat entries.
+
+
 
 ## Table of Contents
 

@@ -14,10 +14,12 @@ import {
   listPageLoader,
   profilePageLoader,
   singlePageLoader,
+  messagesPageLoader,
 } from "./lib/loaders";
 import UpdatePostPage from "./routes/updatePostPage/updatePostPage";
 import AdminDashboard from "./routes/adminDashboard/adminDashboard";
 import ComparePage from "./routes/comparePage/comparePage";
+import MessagesPage from "./routes/messagesPage/messagesPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -74,6 +76,11 @@ function App() {
         {
           path: "/profile/update",
           element: <ProfileUpdatePage />,
+        },
+        {
+          path: "/messages",
+          element: <MessagesPage />,
+          loader: messagesPageLoader,
         },
         {
           path: "/add",

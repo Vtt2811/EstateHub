@@ -1,4 +1,4 @@
-import Chat from "../../components/chat/Chat";
+
 import List from "../../components/list/List";
 import "./profilePage.scss";
 import apiRequest from "../../lib/apiRequest";
@@ -237,14 +237,7 @@ function ProfilePage() {
         </div>
       </div>
 
-      {/* Chat Sidebar */}
-      <div className="lg:w-2/5 bg-white border-l border-surface-200 min-h-[500px] lg:min-h-0 flex flex-col">
-        <Suspense fallback={<div className="p-8 text-center text-navy-400">Loading chats...</div>}>
-          <Await resolve={data.chatResponse} errorElement={<p className="p-8 text-red-500">Error loading chats!</p>}>
-            {(chatResponse) => <Chat chats={chatResponse.data} />}
-          </Await>
-        </Suspense>
-      </div>
+
 
       <Notification
         message={notification.message}

@@ -60,7 +60,7 @@ function CompareBar() {
                     />
                     <div className="compare-bar__thumb-info">
                       <span className="compare-bar__thumb-title">{post.title}</span>
-                      <span className="compare-bar__thumb-price">${post.price?.toLocaleString()}</span>
+                      <span className="compare-bar__thumb-price">₹{post.price?.toLocaleString('en-IN')}</span>
                     </div>
                   </>
                 ) : (

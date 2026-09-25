@@ -16,12 +16,16 @@ export const listPageLoader = async ({ request, params }) => {
   });
 };
 
-//for profile page to get user details
 export const profilePageLoader = async () => {
   const postPromise = apiRequest("/users/profilePosts");
-  const chatPromise = apiRequest("/chats");
   return defer({
     postResponse: postPromise,
+  });
+};
+
+export const messagesPageLoader = async () => {
+  const chatPromise = apiRequest("/chats");
+  return defer({
     chatResponse: chatPromise,
   });
 };

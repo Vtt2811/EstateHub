@@ -41,6 +41,7 @@ export const getPosts = async (req, res) => {
       include: {
         user: {
           select: {
+            id: true,
             username: true,
             avatar: true,
             role: true,
@@ -68,6 +69,7 @@ export const getPost = async (req, res) => {
         postDetail: true,
         user: {
           select: {
+            id: true,
             username: true,
             avatar: true,
             role: true,

@@ -94,8 +94,8 @@ function Login() {
           <div className="absolute inset-0 bg-accent-500/5 backdrop-blur-3xl" />
           <div className="relative z-10">
             <Link to="/" className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden">
-                <img src="/logo.png" alt="EstateHub Logo" className="w-full h-full object-cover" />
+              <div className="w-10 h-10 bg-white p-1 rounded-lg flex items-center justify-center overflow-hidden">
+                <img src="/logo.png" alt="EstateHub Logo" className="w-full h-full object-contain" />
               </div>
               <span className="font-heading font-bold text-2xl tracking-tight text-white">
                 Estate<span className="text-accent-400">Hub</span>

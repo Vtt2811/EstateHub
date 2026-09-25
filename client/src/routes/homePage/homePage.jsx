@@ -101,7 +101,24 @@ function HomePage() {
               Discover exceptional properties tailored to your lifestyle. From luxury apartments to family homes — your dream property awaits.
             </p>
 
-            <SearchBar />
+            {currentUser?.role === "SELLER" ? (
+              <div className="bg-white/10 backdrop-blur-md rounded-card p-6 border border-white/20 max-w-lg">
+                <h3 className="font-heading text-xl text-white mb-2">Welcome back, Seller!</h3>
+                <p className="text-navy-200 font-body text-body-sm mb-4">
+                  Manage your properties or add new listings to reach thousands of potential buyers.
+                </p>
+                <div className="flex gap-4">
+                  <Link to="/add" className="btn-primary !py-2.5 !px-6">
+                    Add Property
+                  </Link>
+                  <Link to="/profile" className="btn-outline !border-white/30 !text-white hover:!bg-white/10 !py-2.5 !px-6">
+                    My Listings
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <SearchBar />
+            )}
           </div>
         </div>
       </section>

@@ -37,12 +37,21 @@ function Navbar() {
             >
               Home
             </Link>
-            <Link
-              to="/list"
-              className={`nav-link ${isActive("/list") ? "nav-link-active" : ""}`}
-            >
-              Properties
-            </Link>
+            {currentUser?.role === "SELLER" ? (
+              <Link
+                to="/add"
+                className={`nav-link ${isActive("/add") ? "nav-link-active" : ""}`}
+              >
+                Add Properties
+              </Link>
+            ) : (
+              <Link
+                to="/list"
+                className={`nav-link ${isActive("/list") ? "nav-link-active" : ""}`}
+              >
+                Properties
+              </Link>
+            )}
           </div>
 
           {/* Right side - Auth */}
@@ -67,13 +76,18 @@ function Navbar() {
                     {currentUser.username}
                   </span>
                 </Link>
-                <Link to="/profile" className="btn-primary !py-2 !px-4 relative">
-                  Dashboard
+                <Link to="/messages" className="relative p-2.5 text-navy-500 hover:text-navy-900 transition-colors bg-surface-100 hover:bg-surface-200 rounded-full flex items-center justify-center" aria-label="Messages">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
                   {number > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
                       {number}
                     </span>
                   )}
+                </Link>
+                <Link to="/profile" className="btn-primary !py-2 !px-4">
+                  Dashboard
                 </Link>
               </div>
             ) : (
@@ -118,13 +132,23 @@ function Navbar() {
             >
               Home
             </Link>
-            <Link
-              to="/list"
-              className="mobile-nav-link"
-              onClick={() => setOpen(false)}
-            >
-              Properties
-            </Link>
+            {currentUser?.role === "SELLER" ? (
+              <Link
+                to="/add"
+                className="mobile-nav-link"
+                onClick={() => setOpen(false)}
+              >
+                Add Properties
+              </Link>
+            ) : (
+              <Link
+                to="/list"
+                className="mobile-nav-link"
+                onClick={() => setOpen(false)}
+              >
+                Properties
+              </Link>
+            )}
             <hr className="border-surface-200 my-3" />
             {currentUser ? (
               <>
@@ -137,6 +161,18 @@ function Navbar() {
                     ⚙ Admin Dashboard
                   </Link>
                 )}
+                <Link
+                  to="/messages"
+                  className="mobile-nav-link flex justify-between items-center"
+                  onClick={() => setOpen(false)}
+                >
+                  <span>Messages</span>
+                  {number > 0 && (
+                    <span className="w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                      {number}
+                    </span>
+                  )}
+                </Link>
                 <Link
                   to="/profile"
                   className="mobile-nav-link"
